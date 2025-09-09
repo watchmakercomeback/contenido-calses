@@ -1,149 +1,83 @@
-// 📌 Tipos primitivos en TypeScript
+type OK = "VALIDO";
+type KO = "INVALIDO";
 
-// string
-let nombre: string = "Carlos";
+//Tipo condicionales con lógica booleana
+type Not<B> = B extends OK ? KO : OK; //Si B es OK => KO. Pero si B no es OK => OK
 
-// number (soporta enteros y decimales)
-let edad: number = 25;
-let pi: number = 3.1416;
+type And<A, B> = //Si A no es OK => KO. Si A sí es OK, entonces => B es OK?
+    A extends OK ? (B extends OK ? OK : KO) : KO; //Sólo es OK cuando ambos son OK.
 
-// boolean
-let esActivo: boolean = true;
+type Or<A, B> = //Si A es OK => OK. Si A no es OK => B es OK? si B es OK => OK. Si no, entonces KO
+    A extends OK ? OK : (B extends OK ? OK : KO); //Sólo es OK cuando cualquiera o los dos, es OK.
 
-// null → representa la ausencia intencional de un valor
-let valorNulo: null = null;
+//Incementa la longitud de una tupla o array de tipos
+type Inc<T extends unknown[]> = [unknown, ...T]; //Ejm: Si T mide 3, Inc<T> mide 4.
 
-// undefined → significa que una variable fue declarada pero no inicializada
-let valorIndefinido: undefined = undefined;
+//Construye, a nivel de tipos, una tupla de longitud N.
+type Build<N, T extends unknown[] = []> =
+    T['length'] extends N ? T : Build<N, Inc<T>>; //Si T['length'] ya es N, vuelve a T. Si no, llama a Inc<T>
 
-// symbol → valores únicos e inmutables (útiles para identificar propiedades únicas)
-let idUnico: symbol = Symbol("id");
+//A mayor que B? => OK o KO.
+type GT<A extends number, B extends number> =
+    Build<B> extends [...Build<A>] ? KO : OK; //¿Build<B> puede verse como Build<A> + algo al final?
 
-// bigint → números enteros muy grandes
-let numeroGrande: bigint = 9007199254740991n;
+//Según el literal de regla R, evalúa el valor/tipo V y devuelve "VALIDO" (OK) o "INVALIDO" (KO) usando tipos condicionales.
+type RuleBase<V, R> =
+    R extends "string_no_vacio"
+        ? (V extends "" ? KO : (V extends string ? OK : KO)) //Está vacío?
+        : R extends "mayor_18"
+            ? (V extends number ? GT<V, 18> : KO) //Es mayor a 18?
+            : R extends "boolean_true"
+                ? (V extends true ? OK : KO) //Es string?
+                : never;
 
-// any → desactiva el tipado, puede ser cualquier cosa (no recomendado salvo excepciones)
-let variableFlexible: any = "Hola";
-variableFlexible = 123;
-variableFlexible = true;
 
-// unknown → similar a any, pero más seguro, requiere comprobación de tipo
-let valorDesconocido: unknown = "podría ser cualquier cosa";
+type Validate<V, R> =
+//NOT/AND/OR se chequean antes de ir a reglas base.
+//validación tipo NOT
+    R extends { NOT: infer R1 }
+        ? Not<Validate<V, R1>>
+        //Validación tipo AND
+        : R extends { AND: infer L }
+            ? L extends readonly unknown[]
+                ? AndFold<V, L>
+                : never
+            //Validación tipo OR
+            : R extends { OR: infer L2 }
+                ? L2 extends readonly unknown[]
+                    ? OrFold<V, L2>
+                    : never
+                //Base
+                : RuleBase<V, R>;
 
-// 📌 Diferencia entre null y undefined:
-// - null → "no hay valor", lo asignas explícitamente.
-// - undefined → "no se ha definido valor", normalmente pasa cuando declaras una variable pero no le asignas nada.
+//Reducción de una lista de reglas usando conectores lógicos
+type AndFold<V, L> =
+    L extends readonly [infer H, ...infer T] //la tupla está vacía?
+        ? And<Validate<V, H>, AndFold<V, T>>
+        : OK; //Si no es vacía
+//Pero si es vacía
+type OrFold<V, L> =
+    L extends readonly [infer H, ...infer T]
+        ? Or<Validate<V, H>, OrFold<V, T>> //Se aplican identidades lógicas AND o OR
+        : KO;
 
-// Ejemplo:
-let a: string | null = null;        // valor intencionalmente vacío
-let b: string | undefined;          // no se ha inicializado aún
+//Define el formato de una regla de esquema como tupla inmutable
+type Entry = readonly [key: PropertyKey, rule: unknown];
 
-// 📌 Ejemplos con arreglos
-let numeros: number[] = [1, 2, 3, 4, 5];
-let nombres: string[] = ["Ana", "Luis", "Carlos"];
-let booleanos: Array<boolean> = [true, false, true]; 
+type FieldValue<Obj, K> = //Dado un objeto Obj y una clave K, devuelve el tipo del campo Obj[K].
+    K extends keyof Obj ? Obj[K] : never;
 
-// Arreglo con tipos mixtos usando unión de tipos
-let mezcla: (string | number)[] = ["texto", 42, "otro", 100];
+type ValidateEntries<Obj, Entries> = //Recorre la lista de entradas Entries
+    Entries extends readonly [infer H, ...infer T]
+        ? H extends Entry
+            ? And<
+                Validate<FieldValue<Obj, H[0]>, H[1]>,
+                ValidateEntries<Obj, T>
+            >
+            : KO
+        : OK;
 
-// Tupla → arreglo con longitud y tipos fijos
-let tuplaEjemplo: [string, number, boolean] = ["ID_123", 99, true];
-
-// ==============================
-// 1. Definir tipos propios
-// ==============================
-type Punto = {
-  x: number;
-  y: number;
-};
-
-let coordenada: Punto = { x: 10, y: 20 };
-
-// ==============================
-// 2. Extender tipos con intersección (&)
-// ==============================
-type ConDireccion = { direccion: string };
-type Persona = { nombre: string; edad: number };
-
-type Cliente = Persona & ConDireccion;
-
-let cliente: Cliente = {
-  nombre: "Luis",
-  edad: 40,
-  direccion: "Calle 123",
-};
-
-// ==============================
-// 3. Tipos de objetos con funciones como propiedades
-// ==============================
-type Calculadora = {
-  sumar: (a: number, b: number) => number;
-  restar: (a: number, b: number) => number;
-};
-
-let calc: Calculadora = {
-  sumar: (a, b) => a + b,
-  restar: (a, b) => a - b,
-};
-
-// ==============================
-// 4. Tipos literales (valores específicos)
-// ==============================
-type Direccion = "norte" | "sur" | "este" | "oeste";
-
-let mover: Direccion;
-mover = "norte";  // ✅
-mover = "oeste";  // ✅
-// mover = "arriba"; // ❌ Error
-
-// ==============================
-// 5. Unión de tipos
-// ==============================
-type Id = string | number;
-
-let userId: Id;
-userId = 123;       // ✅
-userId = "ABC123";  // ✅
-
-// ==============================
-// 6. Alias de tipos
-// ==============================
-type Email = string;
-type Edad = number;
-
-let correo: Email = "user@example.com";
-let edadUsuario: Edad = 25;
-
-// ==============================
-// 7. Propiedades opcionales y readonly
-// ==============================
-type Config = {
-  readonly appName: string;
-  version?: string;
-};
-
-let config: Config = { appName: "MiApp" };
-// config.appName = "Otra"; // ❌ Error
-config.version = "1.0.0";    // ✅
-
-// ==============================
-// 8. Utility Types (funcionan sobre cualquier type)
-// ==============================
-
-// Partial<T> → vuelve todas las props opcionales
-type ParcialPersona = Partial<Persona>;
-let p1: ParcialPersona = { nombre: "Ana" }; // edad opcional
-
-// Omit<T, K> → excluye propiedades
-type PersonaSinEdad = Omit<Persona, "edad">;
-let p2: PersonaSinEdad = { nombre: "Carlos" };
-
-// Pick<T, K> → elige solo ciertas propiedades
-type SoloNombre = Pick<Persona, "nombre">;
-let p3: SoloNombre = { nombre: "Lucía" };
-
-// Readonly<T> → convierte todo en solo lectura
-type PersonaInmutable = Readonly<Persona>;
-let p4: PersonaInmutable = { nombre: "Eva", edad: 22 };
-// p4.edad = 23; // ❌ Error
+//Valida un Obj contra un Esquema
+type ValidarObjeto<Obj, Esquema extends readonly Entry[]> =
+    ValidateEntries<Obj, Esquema>;
 
