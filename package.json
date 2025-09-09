@@ -1,0 +1,18 @@
+{
+  "name": "basestypescript",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "Luis David",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "serialport": "^13.0.0"
+  }
+}
