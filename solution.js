@@ -33,5 +33,4 @@ function transformFunction(myString) {
     }
     return result;
 }
-
 console.log(transformFunction("suddendissaster"));
