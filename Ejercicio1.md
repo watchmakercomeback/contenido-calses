@@ -4,7 +4,7 @@
 
 `function transformFunction(myString){ return transformedString}`
 
-### La función debe transformar el string y devolver las letras del string en el orden de aparición por ejemplo "suddendissaster" debe de retornar "ssssdddeeainrt"
+### La función debe transformar el string y devolver las letras del string en el orden de aparición por ejemplo "suddendissaster" debe de retornar "ssssdddeeainrtu"
 
 ### En caso de que una letra esté más de una vez, el citerio de desempate será el orden alfabético
 
