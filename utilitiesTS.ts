@@ -69,7 +69,7 @@ type R3 = Exclude<U1, "a" | "x">;   // "b" | "c"
 
 //Pero si esto no existiera, sería así:
 type ExcludeMapped<T extends keyof any, U extends keyof any> = {
-    [K in T as K extends U ? never : K]: K
+    [K in T]: K extends U ? never : K
 }[T];
 
 //Extract<T>: toma de T solo los miembros que sean asignables a U. Se puede pensar en la intersección de conjuntos a nivel de uniones. Se puede ver de la siguiente manera:
@@ -78,9 +78,7 @@ type B = { id: string; email: string };
 type CommonKeys = Extract<keyof A, keyof B>; // "id"
 
 //Pero si esto no existiera, sería así:
-type ExtractMapped<T, U> = {
-    [K in T & (string | number | symbol)]: K extends U ? K : never
-}[T & (string | number | symbol)];
+type ExtractMapped<T, U> = T extends U ? T : never;
 
 //NonNullable<T>: Elimina Null o Undefined de un tipo T. Se puede ver de la siguiente manera:
 type A1 = string | null | undefined;
