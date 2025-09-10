@@ -1,61 +1,107 @@
-
-// Partial convierte todas las propiedades de un tipo en opcionales
-type Spell = { name: string; manaCost: number; element: string };
-type SpellUpdate = Partial<Spell>;
-
-
-// Required convierte todas las propiedades de un tipo en obligatorias
-type Quest = { title?: string; reward?: string };
-type FullQuest = Required<Quest>;
+// Partial<T>
+// Convierte todas las propiedades en opcionales
+type MyPartial<T> = {
+    [K in keyof T]?: T[K];
+};
 
 
-// Readonly crea un tipo donde todas las propiedades son de solo lectura
-type ArtConfig = { canvasSize: string; palette: string[] };
-type FrozenArtConfig = Readonly<ArtConfig>;
+// Required<T>
+// Convierte todas las propiedades en obligatorias
+type MyRequired<T> = {
+    [K in keyof T]-?: T[K];
+};
 
 
-// Pick selecciona un subconjunto de propiedades de un tipo
-type Hero = { id: string; name: string; level: number; weapon: string };
-type HeroCard = Pick<Hero, "id" | "name">;
+// Readonly<T>
+// Convierte todas las propiedades en solo lectura
+type MyReadonly<T> = {
+    readonly [K in keyof T]: T[K];
+};
 
 
-// Omit crea un tipo excluyendo ciertas propiedades
-type Villain = { id: string; name: string; secretPlan: string };
-type PublicVillain = Omit<Villain, "secretPlan">;
+// Pick<T, K>
+// Selecciona un subconjunto de propiedades
+type MyPick<T, K extends keyof T> = {
+    [P in K]: T[P];
+};
 
 
-// Record construye un tipo a partir de un conjunto de claves y un tipo de valor
-type GuildRoles = "tank" | "healer" | "dps";
-type RoleEquipment = Record<GuildRoles, string[]>;
+// Omit<T, K>
+// Excluye ciertas propiedades de un tipo
+type MyOmit<T, K extends keyof any> = MyPick<T, Exclude<keyof T, K>>;
 
 
-// Exclude elimina de un tipo las opciones que coincidan con otro
-type AnimeGenre = "shonen" | "shojo" | "isekai" | "horror";
-type SafeGenre = Exclude<AnimeGenre, "horror">;
+// Record<K, T>
+// Construye un tipo con claves K y valores T
+type MyRecord<K extends keyof any, T> = {
+    [P in K]: T;
+};
 
 
-// Extract selecciona de un tipo solo las opciones que coincidan con otro
-type MangaTypes = "seinen" | "josei" | "kodomo";
-type AdultManga = Extract<MangaTypes, "seinen" | "josei">;
+// Exclude<T, U>
+// Excluye de T los tipos que están en U
+type MyExclude<T, U> = T extends U ? never : T;
 
 
-// NonNullable elimina null y undefined de un tipo
-type MagicItem = string | null | undefined;
-type SafeItem = NonNullable<MagicItem>;
+// Extract<T, U>
+// Selecciona de T solo los tipos que están en U
+type MyExtract<T, U> = T extends U ? T : never;
 
 
-// ReturnType obtiene el tipo de retorno de una función
-function summonMonster(name: string, level: number) {
-    return { name, level, type: "Beast" };
-}
-type Monster = ReturnType<typeof summonMonster>;
+// NonNullable<T>
+// Excluye null y undefined de un tipo
+type MyNonNullable<T> = T extends null | undefined ? never : T;
 
 
-// Mapped Types: construir tipos dinámicamente
-type Character = { name: string; class: string; level: number };
+// ReturnType<T>
+// Obtiene el tipo de retorno de una función
+type MyReturnType<T extends (...args: any) => any> =
+    T extends (...args: any) => infer R ? R : never;
 
-// Todas opcionales
-type OptionalCharacter = { [K in keyof Character]?: Character[K] };
 
-// Todas solo lectura
-type FrozenCharacter = { [K in keyof Character]: Readonly<Character[K]> };
+// ========================
+// Ejemplos de uso
+// ========================
+type Hero = { id: string; name: string; level?: number };
+
+// Partial
+type HeroUpdate = MyPartial<Hero>;
+// { id?: string; name?: string; level?: number }
+
+// Required
+type StrictHero = MyRequired<Hero>;
+// { id: string; name: string; level: number }
+
+// Readonly
+type FrozenHero = MyReadonly<Hero>;
+// { readonly id: string; readonly name: string; readonly level?: number }
+
+// Pick
+type HeroCard = MyPick<Hero, "id" | "name">;
+// { id: string; name: string }
+
+// Omit
+type PublicHero = MyOmit<Hero, "level">;
+// { id: string; name: string }
+
+// Record
+type Roles = "tank" | "healer";
+type RoleGear = MyRecord<Roles, string[]>;
+// { tank: string[]; healer: string[] }
+
+// Exclude
+type SafeGenre = MyExclude<"shonen" | "horror", "horror">;
+// "shonen"
+
+// Extract
+type AdultManga = MyExtract<"seinen" | "kodomo", "seinen">;
+// "seinen"
+
+// NonNullable
+type Item = MyNonNullable<string | null | undefined>;
+// string
+
+// ReturnType
+function summonMonster(name: string) { return { name, type: "Beast" }; }
+type Monster = MyReturnType<typeof summonMonster>;
+// { name: string; type: string }
