@@ -44,4 +44,6 @@ function saludar() {
 let res;
 res = saludar();
 console.log(res);
+// Parameters<T> = extrae los tipos de parametros de una funcion en una tupla 
+function sumar(a, b) { }
 //# sourceMappingURL=index.js.map

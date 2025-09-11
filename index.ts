@@ -140,13 +140,3 @@ console.log(res);
 function sumar (a:number, b : string) : void {}
 
 type p = Parameters<typeof sumar>;
-
-
-
-
-
-
-
-
-
-
