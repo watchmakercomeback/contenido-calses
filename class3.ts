@@ -7,14 +7,14 @@ function invertString(str: string): string {
 
 console.log(invertString("hello")); // Output: "olleh"
 
-//2. Verify that a math expression has balanced parentheses 
+//2. Verify that a math expression has balanced parentheses ex: "(a+b)"  -> true, "(a+b))" -> false
 
-function isBalanced(expression: string): boolean {
+function hasBalancedParentheses(expr: string): boolean {
     const stack: string[] = [];
     const pairs: { [key: string]: string } = { '(': ')', '{': '}', '[': ']' };
 
-    for (const char of expression) {
-        if (pairs[char]) {
+    for (const char of expr) {
+        if (char in pairs) {
             stack.push(char);
         } else if (Object.values(pairs).includes(char)) {
             const last = stack.pop();
@@ -26,7 +26,8 @@ function isBalanced(expression: string): boolean {
     return stack.length === 0;
 }
 
-console.log(isBalanced("{[()]}"));
+console.log(hasBalancedParentheses("(a+b)")); // Output: true
+console.log(hasBalancedParentheses("(a+b))")); // Output: false
 
 //3. Print queue
 function printQueue() {
