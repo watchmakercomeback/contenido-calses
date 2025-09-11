@@ -1,0 +1,25 @@
+{
+  "name": "contenido-calses",
+  "version": "1.0.0",
+  "description": "`sudo apt-get update`<br>\r `sudo apt install curl`<br>\r `or if you prefer wget`<br>\r `sudo apt install wget`<br>",
+  "main": "index0.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/josecortes99/contenido-calses.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/josecortes99/contenido-calses/issues"
+  },
+  "homepage": "https://github.com/josecortes99/contenido-calses#readme",
+  "devDependencies": {
+    "@types/node": "^24.3.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  }
+}

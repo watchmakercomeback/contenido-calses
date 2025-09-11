@@ -1,68 +1,152 @@
-// Tipos básicos de validación
-type EsStringNoVacio<T> =
-  T extends string ? (T extends "" ? "INVALIDO" : "VALIDO") : "INVALIDO"
+// Utility types
 
-type EsMayor18<T> =
-  T extends number ? (T extends 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | number ? "VALIDO" : "INVALIDO") : "INVALIDO"
-// (truco: este check es artificial, lo puedes extender a mano o dejar "number → VALIDO")
+// Partial<T> = comvierte todos las propiedades de un tipo en opcionales 
 
-type EsBooleanTrue<T> =
-  T extends true ? "VALIDO" : "INVALIDO"
-
-// Evaluador de reglas simples
-type EvaluarSimple<
-  Objeto extends { nombre: string; edad: number; activo: boolean },
-  R
-> =
-  R extends { campo: "nombre"; regla: "string_no_vacio" }
-    ? EsStringNoVacio<Objeto["nombre"]>
-  : R extends { campo: "edad"; regla: "mayor_18" }
-    ? EsMayor18<Objeto["edad"]>
-  : R extends { campo: "activo"; regla: "boolean_true" }
-    ? EsBooleanTrue<Objeto["activo"]>
-  : "INVALIDO"
-
-// Evaluador de combinadores
-type Evaluar<Objeto extends { nombre: string; edad: number; activo: boolean }, R> =
-  R extends { tipo: "AND"; reglas: [infer A, infer B] }
-    ? [Evaluar<Objeto, A>, Evaluar<Objeto, B>] extends ["VALIDO", "VALIDO"]
-      ? "VALIDO"
-      : "INVALIDO"
-  : R extends { tipo: "OR"; reglas: [infer A, infer B] }
-    ? [Evaluar<Objeto, A>, Evaluar<Objeto, B>] extends ["INVALIDO", "INVALIDO"]
-      ? "INVALIDO"
-      : "VALIDO"
-  : R extends { tipo: "NOT"; regla: infer X }
-    ? Evaluar<Objeto, X> extends "VALIDO" ? "INVALIDO" : "VALIDO"
-  : EvaluarSimple<Objeto, R>
-
-// ---------------------------------
-// Ejemplo de uso
-
-type Usuario = {
-  nombre: string
-  edad: number
-  activo: boolean
+type Persona = {
+    nombre : string;
+    edad : number;
 }
 
-type ValidacionNombre = { campo: "nombre"; regla: "string_no_vacio" }
-type ValidacionEdad   = { campo: "edad";   regla: "mayor_18" }
-type ValidacionActivo = { campo: "activo"; regla: "boolean_true" }
+type persona = Partial<Persona>
 
-type ReglasUsuario = 
-  | { tipo: "AND"; reglas: [ValidacionNombre, ValidacionEdad] }
-  | { tipo: "OR";  reglas: [ValidacionActivo, ValidacionEdad] }
+let personaPartial : persona = {
+    nombre: "jose"
+}
 
-// ✅ Caso válido
-type Resultado1 = Evaluar<
-  { nombre: "Carlos"; edad: 25; activo: true },
-  ReglasUsuario
-> // "VALIDO"
+console.log(personaPartial);
 
-// ❌ Caso inválido
-type Resultado2 = Evaluar<
-  { nombre: ""; edad: 17; activo: false },
-  ReglasUsuario
-> // "INVALIDO"
+// Required<T> = convierte todas la propiedades de un tipo en obligatorias
 
-let resultado1: Resultado1 = "INVALIDO"
+type Animal = {
+    raza : string;
+    tamaño : number;
+}
+
+type animal = Required<Animal>;
+
+let animalRequired : animal = {
+    raza : "albino",
+    tamaño : 123
+}
+
+console.log(animalRequired);
+
+// Readonly<T> = comvierte las propiedades de un tipo en solo lectura
+
+type Persona0 = {
+    nombre : string;
+    genero : string;
+}
+
+type persona0 = Readonly<Persona0>;
+
+let person0 : persona0 = {
+    nombre : "jose",
+    genero : "masculino"
+}
+
+console.log(person0);
+
+// Record<K, T> = crea un objeto tipo mapa  con claves K con valores de tipo T
+
+type Roles = "admin" | "user";
+
+type roles = Record<Roles, boolean>;
+
+let roles1 : roles = {
+    admin : true,
+    user : false
+}
+
+console.log(roles1);
+
+// Pick<T, K> = crea un tipo nuevo con solo algunas propiedades de otro tipo
+
+type Carro = {
+    color : string;
+    modelo : number;
+}
+
+type carro = Pick<Carro, "color">
+
+let car : carro = {
+    color : "negro"
+}
+
+console.log(car);
+
+// Omit<T, K> = crea un tipo nuevo excluyendo ciertas propiedades
+
+type Person1 = {
+    nombre : string;
+    edad : number;
+    direccion : string;
+}
+
+type person2 = Omit<Person1, "edad">;
+
+let per : person2 = {
+    nombre : "jose",
+    direccion : "calle1"
+}
+
+console.log(per);
+
+// Exclude<T, U> = Excluye T de los tipos que tambien esten en U
+
+type Excluir = "a" | "b" | "c";
+
+type excluir = Exclude<Excluir, "b">
+
+let exc : excluir;
+exc = "c";
+exc = "a";
+
+console.log(exc);
+
+// Extract<T, U> = extrae de T los valores que tambien esten en U
+
+type Extraer = "a" | "b" | "c";
+
+type extraer = Extract<Extraer, "c" | "a">;
+
+let ext : extraer;
+ext = "a";
+ext = "c";
+
+console.log(ext);
+
+// NonNullable<T> = elimina null y undefined de un tipo
+
+type Nul = null | string | undefined
+
+type nul = NonNullable<Nul>
+
+// ReturnType<T> = extrae el tipo de retorno de ua funcion
+
+function saludar() : string {
+    return "Hola";
+}
+
+type R = ReturnType<typeof saludar>;
+
+let res : R;
+res = saludar();
+
+console.log(res);
+
+// Parameters<T> = extrae los tipos de parametros de una funcion en una tupla 
+
+function sumar (a:number, b : string) : void {}
+
+type p = Parameters<typeof sumar>;
+
+
+
+
+
+
+
+
+
+
