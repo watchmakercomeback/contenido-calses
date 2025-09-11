@@ -1,3 +1,4 @@
+// Cambio mínimo para commit y push
 // 📌 Tipos primitivos en TypeScript
 
 // string
