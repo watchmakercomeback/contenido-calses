@@ -200,5 +200,52 @@ taskQueue.getNextTask();
 taskQueue.getNextTask();
 taskQueue.getNextTask();
 
-//11. Duplicate the value of each number in an array
+//11. The product between each number in an array and 2
+function multiplyByTwo(arr: number[]): number[] {
+    return arr.map(num => num * 2);
+}
+
+console.log(multiplyByTwo([1, 2, 3, 4])); // Output: [2, 4, 6, 8]
+
+//12. Filter numbers greater than n in an array
+function filterGreaterThan(arr: number[], n: number): number[] {
+    return arr.filter(num => num > n);
+}
+
+console.log(filterGreaterThan([1, 5, 8, 10, 3], 5)); // Output: [8, 10]
+
+//13. Organize the words in an array by their length
+function sortByLength(words: string[]): string[] {
+    return words.sort((a, b) => a.length - b.length);
+}
+
+console.log(sortByLength(["sol", "mar", "estrella", "luz"])); // Output: ["sol", "mar", "luz", "estrella"]
+
+//14. Calculate prom of an array of numbers
+function calculateAverage(arr: number[]): number {
+    const sum = arr.reduce((acc, num) => acc + num, 0);
+    return sum / arr.length;
+}
+
+console.log(calculateAverage([1, 2, 3, 4, 5])); // Output: 3
+
+//15. Find the mode in an array of numbers
+function findMode(arr: number[]): number | null {
+    const frequency: { [key: number]: number } = {};
+    let maxFreq = 0;
+    let mode: number | null = null;
+
+    for (const num of arr) {
+        frequency[num] = (frequency[num] || 0) + 1;
+        if (frequency[num] > maxFreq) {
+            maxFreq = frequency[num];
+            mode = num;
+        }
+    }
+
+    return mode;
+}
+
+console.log(findMode([1, 2, 2, 3, 4])); // Output: 2
+
     
