@@ -1,0 +1,19 @@
+{
+  "name": "contenido-calses",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/josecortes99/contenido-calses.git",
+  "author": "Jose Cortes <j.c.e555@hotmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node-dev --respawn --transpile-only index.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.1",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.2"
+  }
+}

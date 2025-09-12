@@ -1,68 +1,239 @@
-// Tipos básicos de validación
-type EsStringNoVacio<T> =
-  T extends string ? (T extends "" ? "INVALIDO" : "VALIDO") : "INVALIDO"
-
-type EsMayor18<T> =
-  T extends number ? (T extends 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | number ? "VALIDO" : "INVALIDO") : "INVALIDO"
-// (truco: este check es artificial, lo puedes extender a mano o dejar "number → VALIDO")
-
-type EsBooleanTrue<T> =
-  T extends true ? "VALIDO" : "INVALIDO"
-
-// Evaluador de reglas simples
-type EvaluarSimple<
-  Objeto extends { nombre: string; edad: number; activo: boolean },
-  R
-> =
-  R extends { campo: "nombre"; regla: "string_no_vacio" }
-    ? EsStringNoVacio<Objeto["nombre"]>
-  : R extends { campo: "edad"; regla: "mayor_18" }
-    ? EsMayor18<Objeto["edad"]>
-  : R extends { campo: "activo"; regla: "boolean_true" }
-    ? EsBooleanTrue<Objeto["activo"]>
-  : "INVALIDO"
-
-// Evaluador de combinadores
-type Evaluar<Objeto extends { nombre: string; edad: number; activo: boolean }, R> =
-  R extends { tipo: "AND"; reglas: [infer A, infer B] }
-    ? [Evaluar<Objeto, A>, Evaluar<Objeto, B>] extends ["VALIDO", "VALIDO"]
-      ? "VALIDO"
-      : "INVALIDO"
-  : R extends { tipo: "OR"; reglas: [infer A, infer B] }
-    ? [Evaluar<Objeto, A>, Evaluar<Objeto, B>] extends ["INVALIDO", "INVALIDO"]
-      ? "INVALIDO"
-      : "VALIDO"
-  : R extends { tipo: "NOT"; regla: infer X }
-    ? Evaluar<Objeto, X> extends "VALIDO" ? "INVALIDO" : "VALIDO"
-  : EvaluarSimple<Objeto, R>
-
-// ---------------------------------
-// Ejemplo de uso
-
-type Usuario = {
-  nombre: string
-  edad: number
-  activo: boolean
+// 1.
+function Cadena(texto: string): string {
+  let invertido = "";
+  for (let i = texto.length - 1; i >= 0; i--) {
+    invertido += texto[i];
+  }
+  return invertido;
 }
 
-type ValidacionNombre = { campo: "nombre"; regla: "string_no_vacio" }
-type ValidacionEdad   = { campo: "edad";   regla: "mayor_18" }
-type ValidacionActivo = { campo: "activo"; regla: "boolean_true" }
+console.log(Cadena("hola"));
 
-type ReglasUsuario = 
-  | { tipo: "AND"; reglas: [ValidacionNombre, ValidacionEdad] }
-  | { tipo: "OR";  reglas: [ValidacionActivo, ValidacionEdad] }
+// 2.
+function balaceado(expresion: string): boolean {
+  let pila: string[] = [];
 
-// ✅ Caso válido
-type Resultado1 = Evaluar<
-  { nombre: "Carlos"; edad: 25; activo: true },
-  ReglasUsuario
-> // "VALIDO"
+  for (let char of expresion) {
+    if (char === "(") {
+      pila.push(char);
+    } else if (char === ")") {
+      if (pila.length === 0) return false;
+      pila.pop();
+    }
+  }
 
-// ❌ Caso inválido
-type Resultado2 = Evaluar<
-  { nombre: ""; edad: 17; activo: false },
-  ReglasUsuario
-> // "INVALIDO"
+  return pila.length === 0;
+}
 
-let resultado1: Resultado1 = "INVALIDO"
+console.log(balaceado("(a+b)"));
+console.log(balaceado("(a+b))"));
+
+// 3.
+class Cola0 {
+  private cola: string[] = []; 
+
+  agregar(documento: string): void {
+    this.cola.push(documento);
+    console.log(`Documento agregado: ${documento}`);
+  }
+
+  retirar(): string | undefined {
+    if (this.cola.length === 0) {
+      console.log("No hay documentos en la cola.");
+      return undefined;
+    }
+    const doc = this.cola.shift(); 
+    console.log(`Documento impreso: ${doc}`);
+    return doc;
+  }
+
+  contar(): number {
+    return this.cola.length;
+  }
+
+  mostrar(): void {
+    console.log("Cola actual:", this.cola);
+  }
+}
+
+const impresora = new Cola0();
+
+impresora.agregar("Documento1.pdf");
+impresora.agregar("Documento2.docx");
+impresora.agregar("Documento3.pptx");
+
+impresora.mostrar(); 
+
+impresora.retirar(); 
+impresora.mostrar(); 
+
+console.log("Total en cola:", impresora.contar()); 
+
+
+// 4.
+function NoRepetida(nombre: string): string | null {
+  for (let i = 0; i < nombre.length; i++) {
+    let letra = nombre[i];
+    if (nombre.indexOf(letra) === nombre.lastIndexOf(letra)) {
+      return letra; 
+    }
+  }
+  return null; 
+}
+
+console.log(NoRepetida("hhoolaa"));
+
+// 5.
+function eliminar(arr: number[]): number[] {
+  return [...new Set(arr)];
+}
+
+console.log(eliminar([1, 2, 2, 3, 4, 4, 5])); 
+
+// 6.
+function rotar(arr: number[], k: number): number[] {
+  k = k % arr.length;
+  return arr.slice(-k).concat(arr.slice(0, -k));
+}
+
+console.log(rotar([1, 2, 3, 4, 5], 2)); 
+
+// 7.
+class Historial {
+  private atras: string[] = [];
+  private adelante: string[] = [];
+  private actual: string | null = null;
+
+  visit(url: string) {
+    if (this.actual) this.atras.push(this.actual);
+    this.actual = url;
+    this.adelante = [];
+  }
+
+  back() {
+    if (this.atras.length > 0) {
+      this.adelante.push(this.actual!);
+      this.actual = this.atras.pop()!;
+    }
+    return this.actual;
+  }
+
+  forward() {
+    if (this.adelante.length > 0) {
+      this.atras.push(this.actual!);
+      this.actual = this.adelante.pop()!;
+    }
+    return this.actual;
+  }
+}
+
+const navegador = new Historial();
+navegador.visit("google.com");
+console.log(navegador.back());
+console.log(navegador.forward()); 
+
+// 8.
+function contar(texto: string): Record<string, number> {
+  let palabras = texto.split(" ");
+  let contador: Record<string, number> = {};
+
+  for (let p of palabras) {
+    contador[p] = (contador[p] || 0) + 1;
+  }
+
+  return contador;
+}
+
+console.log(contar("hola mundo hola typescript"));
+
+// 9.
+function agrupar(palabras: string[]): string[][] {
+  let mapa: Record<string, string[]> = {};
+
+  for (let palabra of palabras) {
+    let clave = palabra.split("").sort().join("");
+    if (!mapa[clave]) mapa[clave] = [];
+    mapa[clave].push(palabra);
+  }
+
+  return Object.values(mapa);
+}
+
+console.log(agrupar(["eat", "tea", "tan", "ate", "nat", "bat"]));
+
+// 10.
+interface Tarea {
+  nombre: string;
+  prioridad: number;
+}
+
+class Cola {
+  private tareas: Tarea[] = [];
+
+  enqueue(tarea: Tarea) {
+    this.tareas.push(tarea);
+  }
+
+  dequeue(): Tarea | undefined {
+    if (this.tareas.length === 0) return undefined;
+    let mayor = this.tareas.reduce((a, b) =>
+      a.prioridad > b.prioridad ? a : b
+    );
+    this.tareas = this.tareas.filter((t) => t !== mayor);
+    return mayor;
+  }
+}
+
+const cola = new Cola();
+cola.enqueue({ nombre: "A", prioridad: 1 });
+cola.enqueue({ nombre: "B", prioridad: 5 });
+console.log(cola.dequeue()); 
+
+// 11.
+function doblar(arr: number[]): number[] {
+  return arr.map((num) => num * 2);
+}
+
+console.log(doblar([1, 2, 3, 4]));
+
+// 12.
+function mayores(arr: number[], n: number): number[] {
+  return arr.filter((num) => num > n);
+}
+
+console.log(mayores([1, 5, 8, 3, 10], 5)); 
+
+// 13.
+function Longitud(arr: string[]): string[] {
+  return arr.sort((a, b) => a.length - b.length);
+}
+
+console.log(Longitud(["soll", "marrr", "estrella", "luz"]));
+
+// 14.
+function promedio(arr: number[]): number {
+  let suma = arr.reduce((a, b) => a + b, 0);
+  return suma / arr.length;
+}
+
+console.log(promedio([4, 8, 6, 10])); // 7
+
+// 15.
+function Frecuente(arr: number[]): number {
+  let contador: Record<number, number> = {};
+
+  for (let num of arr) {
+    contador[num] = (contador[num] || 0) + 1;
+  }
+
+  let maxNum = arr[0];
+  for (let num in contador) {
+    if (contador[+num] > contador[maxNum]) {
+      maxNum = +num;
+    }
+  }
+
+  return maxNum;
+}
+
+console.log(Frecuente([1, 3, 2, 3, 4, 3, 5, 2])); 
