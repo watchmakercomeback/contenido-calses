@@ -100,8 +100,8 @@ function createBrowserHistory() {
 
     return {
         visit: (url: string) => {
-            history.splice(currentIndex + 1);   // Remove forward history 
-        
+            history.push(url); 
+
         },
         back: () => {
             if (currentIndex > 0) {
