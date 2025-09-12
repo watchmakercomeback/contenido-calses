@@ -101,7 +101,7 @@ function createBrowserHistory() {
     return {
         visit: (url: string) => {
             history.push(url); 
-
+            currentIndex++;
         },
         back: () => {
             if (currentIndex > 0) {
