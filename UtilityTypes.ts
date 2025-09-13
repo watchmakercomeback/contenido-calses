@@ -39,6 +39,7 @@ type StaticProduct = MyReadonly<Product>;
 const frozenProduct: StaticProduct = { id: 2, name: "Mouse", price: 20, stock: 50 };
 // frozenProduct.price = 15; // error (readonly)
 
+
 // Pick y Omit
 type Employee = {
   id: number;
@@ -72,6 +73,7 @@ const employeeSafe: EmployeeWithoutSalary = {
   department: "IT",
 };
 
+
 // Record
 type MyRecord<K extends keyof any, T> = {
   [P in K]: T;
@@ -85,6 +87,7 @@ const rolePerms: RolePermissions = {
   manager: ["update", "view"],
   staff: ["view"],
 };
+
 
 // Exclude y Extract
 type MyExclude<T, U> = T extends U ? never : T;
@@ -100,6 +103,7 @@ type MyExtract<T, U> = T extends U ? T : never;
 type DigPayments = MyExtract<PaymentMethod, "crypto" | "paypal">;
 const payment2: DigPayments = "crypto"; // "cash" it must be an error
 
+
 // NonNullable
 type MyNonNullable<T> = T extends null | undefined ? never : T;
 
@@ -107,6 +111,7 @@ type UserResponse = { id: number; name: string } | null | undefined;
 type SafeUser = MyNonNullable<UserResponse>;
 
 const user1: SafeUser = { id: 10, name: "Rafael" }; // null o undefined darían error
+
 
 // ReturnType
 type MyReturnType<T extends (...args: any[]) => any> =
