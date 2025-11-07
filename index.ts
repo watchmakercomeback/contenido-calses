@@ -1,149 +1,110 @@
-// 📌 Tipos primitivos en TypeScript
 
-// string
-let nombre: string = "Carlos";
-
-// number (soporta enteros y decimales)
-let edad: number = 25;
-let pi: number = 3.1416;
-
-// boolean
-let esActivo: boolean = true;
-
-// null → representa la ausencia intencional de un valor
-let valorNulo: null = null;
-
-// undefined → significa que una variable fue declarada pero no inicializada
-let valorIndefinido: undefined = undefined;
-
-// symbol → valores únicos e inmutables (útiles para identificar propiedades únicas)
-let idUnico: symbol = Symbol("id");
-
-// bigint → números enteros muy grandes
-let numeroGrande: bigint = 9007199254740991n;
-
-// any → desactiva el tipado, puede ser cualquier cosa (no recomendado salvo excepciones)
-let variableFlexible: any = "Hola";
-variableFlexible = 123;
-variableFlexible = true;
-
-// unknown → similar a any, pero más seguro, requiere comprobación de tipo
-let valorDesconocido: unknown = "podría ser cualquier cosa";
-
-// 📌 Diferencia entre null y undefined:
-// - null → "no hay valor", lo asignas explícitamente.
-// - undefined → "no se ha definido valor", normalmente pasa cuando declaras una variable pero no le asignas nada.
-
-// Ejemplo:
-let a: string | null = null;        // valor intencionalmente vacío
-let b: string | undefined;          // no se ha inicializado aún
-
-// 📌 Ejemplos con arreglos
-let numeros: number[] = [1, 2, 3, 4, 5];
-let nombres: string[] = ["Ana", "Luis", "Carlos"];
-let booleanos: Array<boolean> = [true, false, true]; 
-
-// Arreglo con tipos mixtos usando unión de tipos
-let mezcla: (string | number)[] = ["texto", 42, "otro", 100];
-
-// Tupla → arreglo con longitud y tipos fijos
-let tuplaEjemplo: [string, number, boolean] = ["ID_123", 99, true];
-
-// ==============================
-// 1. Definir tipos propios
-// ==============================
-type Punto = {
-  x: number;
-  y: number;
+//creamos los tipos
+type UserType = {
+  id: number;
+  name: string;
+  email: string;
 };
 
-let coordenada: Punto = { x: 10, y: 20 };
-
-// ==============================
-// 2. Extender tipos con intersección (&)
-// ==============================
-type ConDireccion = { direccion: string };
-type Persona = { nombre: string; edad: number };
-
-type Cliente = Persona & ConDireccion;
-
-let cliente: Cliente = {
-  nombre: "Luis",
-  edad: 40,
-  direccion: "Calle 123",
+type Configrequired = { 
+    debug?: boolean; 
+    verbose?: boolean; 
 };
 
-// ==============================
-// 3. Tipos de objetos con funciones como propiedades
-// ==============================
-type Calculadora = {
-  sumar: (a: number, b: number) => number;
-  restar: (a: number, b: number) => number;
+type SettingsRandoly = { readonly theme: string;
+    language: string 
 };
 
-let calc: Calculadora = {
-  sumar: (a, b) => a + b,
-  restar: (a, b) => a - b,
+type PickType = {
+     id: number; 
+     name: string ; 
+     email: string 
+    };
+
+type UserPrivate = Omit<UserType, "email">;  
+
+type myRoles = "admin" | "user" | "guest";
+type MyExcluded = Exclude<myRoles, "guest">;
+type MyExtracted = Extract<myRoles, "admin" | "guest">;
+
+type myNullable = string | number | null | undefined;
+type myNonNullableType = NonNullable<myNullable>;
+type myReturnType = () => string;
+
+
+
+
+
+// type partial<T> convierte todas las propiedades de un tipo en opcionales
+
+type MyPartial<T> = {
+  [P in keyof T]?: T[P];
 };
 
-// ==============================
-// 4. Tipos literales (valores específicos)
-// ==============================
-type Direccion = "norte" | "sur" | "este" | "oeste";
+//"Para cada propiedad P en las claves de T, hazla opcional con ?, y conserva su tipo original T[P]".
 
-let mover: Direccion;
-mover = "norte";  // ✅
-mover = "oeste";  // ✅
-// mover = "arriba"; // ❌ Error
-
-// ==============================
-// 5. Unión de tipos
-// ==============================
-type Id = string | number;
-
-let userId: Id;
-userId = 123;       // ✅
-userId = "ABC123";  // ✅
-
-// ==============================
-// 6. Alias de tipos
-// ==============================
-type Email = string;
-type Edad = number;
-
-let correo: Email = "user@example.com";
-let edadUsuario: Edad = 25;
-
-// ==============================
-// 7. Propiedades opcionales y readonly
-// ==============================
-type Config = {
-  readonly appName: string;
-  version?: string;
+// type required<T>
+type Myrequired<T> = { 
+  [P in keyof T]-?: T[P];  //[P in keyof T]: recorre cada propiedad del tipo.
 };
+//[P in keyof T]: recorre cada propiedad del tipo.
+//-?: quita el modificador opcional ? de la propiedad.
+//T[P]: mantiene el tipo original del valor.
 
-let config: Config = { appName: "MiApp" };
-// config.appName = "Otra"; // ❌ Error
-config.version = "1.0.0";    // ✅
 
-// ==============================
-// 8. Utility Types (funcionan sobre cualquier type)
-// ==============================
+// type readonly<T>,  convierte y hace que todas las propiedades de un tipo en solo lectura, no se puede modificar despues de haber sido asignadas
+type MyReadonly<T> = {
+  readonly [P in keyof T]: T[P];
+};
+//readonly: hace que la propiedad sea de solo lectura, es decir, no se puede modificar después de su inicialización.
+//[P in keyof T]: recorre cada propiedad del tipo T.
+//T[P]: mantiene el tipo original del valor.
 
-// Partial<T> → vuelve todas las props opcionales
-type ParcialPersona = Partial<Persona>;
-let p1: ParcialPersona = { nombre: "Ana" }; // edad opcional
+// type pick<T,K>
+type MyPick<T, K extends keyof T> = {
+  [P in K]: T[P];
+};
+//K extends keyof T: asegura que K sea un subconjunto de las claves de T.
+//[P in K]: recorre cada clave en el conjunto K.
+//T[P]: mantiene el tipo original del valor para las claves seleccionadas.
 
-// Omit<T, K> → excluye propiedades
-type PersonaSinEdad = Omit<Persona, "edad">;
-let p2: PersonaSinEdad = { nombre: "Carlos" };
+// type omit<T,K>
+type MyOmit<T, K extends keyof T> = {
+  [P in Exclude<keyof T, K>]: T[P];
+};
+//Exclude<keyof T, K>: obtiene las claves de T que no están en K.
+//[P in Exclude<keyof T, K>]: recorre cada clave que no está en K.
+//T[P]: mantiene el tipo original del valor para las claves restantes.  
 
-// Pick<T, K> → elige solo ciertas propiedades
-type SoloNombre = Pick<Persona, "nombre">;
-let p3: SoloNombre = { nombre: "Lucía" };
 
-// Readonly<T> → convierte todo en solo lectura
-type PersonaInmutable = Readonly<Persona>;
-let p4: PersonaInmutable = { nombre: "Eva", edad: 22 };
-// p4.edad = 23; // ❌ Error
+// type record<K,T>
+type MyRecord<K extends keyof any, T> = {
+  [P in K]: T;
+};
+//K extends keyof any: asegura que K sea un tipo que pueda ser usado como clave de un objeto (string, number, symbol).
+//[P in K]: recorre cada clave en el conjunto K.
+//T: asigna el tipo T a cada clave P.
 
+//Type exclude
+type MyExclude<T, U> = T extends U ? never : T;
+//T extends U: verifica si T es asignable a U.
+//? never : T: si T es asignable a U, devuelve never (excluye T); de lo contrario, devuelve T.
+
+//Type extract
+type MyExtract<T, U> = T extends U ? T : never;
+//T extends U: verifica si T es asignable a U.
+//? T : never: si T es asignable a U, devuelve T; de lo contrario, devuelve never (excluye T).
+
+//Type nonnullable
+type MyNonNullable<T> = T & {};
+//T & {}: intersecta T con un objeto vacío {}, eliminando null y undefined de T.
+
+//type returntype
+type MyReturnType<T extends (...args: any[]) => any> = T extends (
+  ...args: any[]
+) => infer R
+  ? R
+  : any;
+//T extends (...args: any[]) => any: asegura que T sea una función.
+//T extends (...args: any[]) => infer R: usa infer para capturar el tipo de retorno de la función en R.
+//? R : any: si T es una función, devuelve el tipo capturado R; de lo contrario, devuelve any.
